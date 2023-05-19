@@ -1,4 +1,4 @@
-from flask import Flask, render_template, url_for, redirect
+from flask import Flask, render_template, url_for, redirect, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin, login_user, LoginManager, login_required, logout_user, current_user
 from flask_wtf import FlaskForm
@@ -29,15 +29,31 @@ def load_user(user_id):
 
 
 class User(db.Model, UserMixin):
-    name = db.Column(db.String(40))
-    id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(20), nullable=False, unique=True)
+    name: str = db.Column(db.String(40))
+    id: int = db.Column(db.Integer, primary_key=True)
+    username: str = db.Column(db.String(20), nullable=False, unique=True)
     password = db.Column(db.String(80), nullable=False)
+    # email: str = db.Column(db.String(100), nullable=True)
+    blocked: bool = db.Column(db.Integer, nullable=False, default=0)
+
+    def __init__(self,
+                 username: str,
+                 name: str,
+                 # email: str = "johndoe@somewhere.com",
+                 password
+                 ):
+        self.username = username
+        # self.email = email
+        self.name = name
+        self.password = password
 
 
 class RegisterForm(FlaskForm):
     name = StringField(validators=[
         Length(min=3, max=40)], render_kw={"placeholder": "Name"})
+
+    # email = StringField(validators=[
+    #     Length(min=8)], render_kw={"placeholder": "Email"})
 
     username = StringField(validators=[
         InputRequired(), Length(min=4, max=20)], render_kw={"placeholder": "Username"})
@@ -47,12 +63,20 @@ class RegisterForm(FlaskForm):
 
     submit = SubmitField('Register')
 
-    def validate_username(self, username):
+    @staticmethod
+    def validate_username(username,
+                          name
+                          ):
+        # print(email.data)
+        print(f"EXTRA: {username.data.get('username')}")
+        print(f"EXTRA: {name.data}")
         existing_user_username = User.query.filter_by(
-            username=username.data).first()
+            username=name.data).first()
         if existing_user_username:
             raise ValidationError(
                 'That username already exists. Please choose a different one.')
+        else:
+            print("user not exists yet.")
 
 
 class LoginForm(FlaskForm):
@@ -70,12 +94,47 @@ def home():
     return render_template('home.html')
 
 
+@app.route('/update_user', methods=['POST'])
+@login_required
+def update_user():
+    user_id = request.form.get('user_id')
+    new_name = request.form.get('new_name')
+    new_username = request.form.get('new_username')
+    blocked = int(request.form.get('blocked'))
+    # email = str(request.form.get('email'))
+
+    user = User.query.get(user_id)
+    if user:
+        user.name = new_name
+        user.username = new_username
+        user.blocked = blocked
+        # user.email = email
+        db.session.commit()
+        return jsonify({"result": "success"})
+    else:
+        return jsonify({"result": "error", "message": "User not found"})
+
+
+@app.route('/admin', methods=['GET', 'POST'])
+@login_required
+def admin():
+    all_users = User.query.all()
+    return render_template('admin.html', user=current_user, all_users=all_users)
+
+
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     form = LoginForm()
     if form.validate_on_submit():
         user = User.query.filter_by(username=form.username.data).first()
-        if user:
+        blocked: bool = bool(user.blocked)
+        print("=" * 50)
+        print("Logging in user:")
+        print(f"user id: {User.query.filter_by(username=form.username.data).first()}")
+        print(f"user name: {user.name}({user.username})")
+        print(f"user blocked: {bool(user.blocked)}")
+        print("=" * 50)
+        if user and not blocked:
             if bcrypt.check_password_hash(user.password, form.password.data):
                 login_user(user)
                 return redirect(url_for('dashboard'))
@@ -86,6 +145,10 @@ def login():
 @app.route('/dashboard', methods=['GET', 'POST'])
 @login_required
 def dashboard():
+    print(f"Name: {current_user.name}({current_user.username}):\n"
+          # f"email: {current_user.email}"
+          )
+    print(f"blocked: {bool(current_user.blocked)}\n")
     return render_template('dashboard.html', user=current_user)
 
 
@@ -102,7 +165,10 @@ def register():
 
     if form.validate_on_submit():
         hashed_password = bcrypt.generate_password_hash(form.password.data)
-        new_user = User(username=form.username.data, password=hashed_password)
+        new_user = User(username=form.username.data,
+                        name=form.name.data,
+                        # email=form.email.data,
+                        password=hashed_password)
         db.session.add(new_user)
         db.session.commit()
         return redirect(url_for('login'))

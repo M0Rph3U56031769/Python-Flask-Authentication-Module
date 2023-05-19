@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Page</title>
+</head>
+
+<body>
+    <h1>Hello {{ user.name }}({{ user.username }})! You are logged in.</h1>
+    <p>
+        Users:
+    </p>
+    <p>
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Username</th>
+                    <th>Blocked</th>
+{#                    <th>Email</th>#}
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in all_users %}
+                    <tr>
+                        <td>{{ user.id }}</td>
+                        <td><input type="text" value="{{ user.name }}" class="name-input" data-user-id="{{ user.id }}"></td>
+                        <td><input type="text" value="{{ user.username }}" class="username-input" data-user-id="{{ user.id }}"></td>
+                        <td><input type="checkbox" {% if user.blocked %}checked{% endif %} class="blocked-checkbox" data-user-id="{{ user.id }}"></td>
+{#                        <td><input type="text" value="{{ user.email }}" class="username-input" data-user-id="{{ user.email }}"></td>#}
+                        <td>
+                            <button class="save-button" data-user-id="{{ user.id }}">Save</button>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+    <script>
+    const saveButtons = document.querySelectorAll('.save-button');
+    for (const button of saveButtons) {
+        button.addEventListener('click', async () => {
+            const userId = button.getAttribute('data-user-id');
+            const nameInput = document.querySelector(`.name-input[data-user-id="${userId}"]`);
+            const usernameInput = document.querySelector(`.username-input[data-user-id="${userId}"]`);
+            const blockedCheckbox = document.querySelector(`.blocked-checkbox[data-user-id="${userId}"]`);
+            {#const emailInput = document.querySelector(`.email-input[data-user-id="${userId}"]`);#}
+
+
+            const new_name = nameInput.value;
+            const new_username = usernameInput.value;
+            const blocked = blockedCheckbox.checked ? 1 : 0;
+            {#const email = emailInput.value;#}
+
+
+            const response = await fetch('/update_user', {
+                method: 'POST',
+                body: new URLSearchParams({
+                    user_id: userId,
+                    new_name: new_name,
+                    new_username: new_username,
+                    {#email: email,#}
+                    blocked: blocked
+                }),
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+            });
+
+            const result = await response.json();
+
+            if (result.result === 'success') {
+                alert('User data successfully updated');
+            } else {
+                alert('Error updating user data: ' + result.message);
+            }
+        });
+    }
+</script>
+    <a href="{{url_for('dashboard')}}">dashboard</a>
+    <a href="{{url_for('logout')}}">logout</a>
+</body>
+
+</html>
