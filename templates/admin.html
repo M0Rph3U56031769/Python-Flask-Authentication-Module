@@ -10,9 +10,7 @@
 
 <body>
     <h1>Hello {{ user.name }}({{ user.username }})! You are logged in.</h1>
-    <p>
-        Users:
-    </p>
+    <h2>Users:</h2>
     <p>
         <table>
             <thead>
@@ -22,7 +20,9 @@
                     <th>Username</th>
                     <th>Blocked</th>
 {#                    <th>Email</th>#}
-                    <th>Actions</th>
+                    <th>Admin</th>
+                    <th>Save</th>
+                    <th>Delete</th>
                 </tr>
             </thead>
             <tbody>
@@ -32,10 +32,10 @@
                         <td><input type="text" value="{{ user.name }}" class="name-input" data-user-id="{{ user.id }}"></td>
                         <td><input type="text" value="{{ user.username }}" class="username-input" data-user-id="{{ user.id }}"></td>
                         <td><input type="checkbox" {% if user.blocked %}checked{% endif %} class="blocked-checkbox" data-user-id="{{ user.id }}"></td>
-{#                        <td><input type="text" value="{{ user.email }}" class="username-input" data-user-id="{{ user.email }}"></td>#}
-                        <td>
-                            <button class="save-button" data-user-id="{{ user.id }}">Save</button>
-                        </td>
+                        <td><input type="checkbox" {% if user.admin %}checked{% endif %} class="admin-checkbox" data-user-id="{{ user.id }}"></td>
+                        <td><button class="save-button" data-user-id="{{ user.id }}">Save</button></td>
+                        <td><button class="delete-btn" data-user-id="{{ user.id }}">Delete</button></td>
+
                     </tr>
                 {% endfor %}
             </tbody>
@@ -49,13 +49,14 @@
             const nameInput = document.querySelector(`.name-input[data-user-id="${userId}"]`);
             const usernameInput = document.querySelector(`.username-input[data-user-id="${userId}"]`);
             const blockedCheckbox = document.querySelector(`.blocked-checkbox[data-user-id="${userId}"]`);
-            {#const emailInput = document.querySelector(`.email-input[data-user-id="${userId}"]`);#}
+            const adminCheckbox = document.querySelector(`.admin-checkbox[data-user-id="${userId}"]`);
+
 
 
             const new_name = nameInput.value;
             const new_username = usernameInput.value;
             const blocked = blockedCheckbox.checked ? 1 : 0;
-            {#const email = emailInput.value;#}
+            const admin = adminCheckbox.checked ? 1 : 0;
 
 
             const response = await fetch('/update_user', {
@@ -65,7 +66,8 @@
                     new_name: new_name,
                     new_username: new_username,
                     {#email: email,#}
-                    blocked: blocked
+                    blocked: blocked,
+                    admin: admin
                 }),
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded',
@@ -75,15 +77,43 @@
             const result = await response.json();
 
             if (result.result === 'success') {
-                alert('User data successfully updated');
+                alert('User data for {{ user.name }}({{ user.username }}) successfully updated');
             } else {
                 alert('Error updating user data: ' + result.message);
             }
         });
     }
 </script>
-    <a href="{{url_for('dashboard')}}">dashboard</a>
-    <a href="{{url_for('logout')}}">logout</a>
+<script>
+    document.querySelectorAll('.delete-btn').forEach(function(btn) {
+        btn.addEventListener('click', function(e) {
+            var user_id = e.target.getAttribute('data-user-id');
+            if (confirm('Are you sure you want to delete this user?')) {
+                fetch('/delete_user', {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        'user_id': user_id
+                    }),
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                }).then(function(response) {
+                    return response.json();
+                }).then(function(data) {
+                    if (data.result === 'success') {
+                        location.reload();
+                    } else {
+                        alert(data.message);
+                    }
+                });
+            }
+        });
+    });
+</script>
+
+    <p><a href="{{url_for('new_user')}}">New User</a></p>
+    <p><a href="{{url_for('dashboard')}}">Dashboard</a></p>
+    <p><a href="{{url_for('logout')}}">Logout</a></p>
 </body>
 
 </html>
