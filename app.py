@@ -1,8 +1,10 @@
 from functools import wraps
 
-from flask import Flask, render_template, url_for, redirect, request, jsonify
+from flask import Flask
 from flask import abort
+from flask import render_template, url_for, redirect, request, jsonify
 from flask_bcrypt import Bcrypt
+from flask_cors import CORS
 from flask_login import UserMixin, login_user, LoginManager, login_required, logout_user, current_user
 from flask_sqlalchemy import SQLAlchemy
 from flask_wtf import FlaskForm
@@ -12,6 +14,7 @@ from wtforms.validators import InputRequired, Length, ValidationError, Optional
 SQLALCHEMY_TRACK_MODIFICATIONS = False
 
 app = Flask(__name__)
+CORS(app)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
 app.config['SECRET_KEY'] = 'thisisasecretkey'
@@ -59,14 +62,14 @@ class User(db.Model, UserMixin):
                  name: str,
                  # email: str = "johndoe@somewhere.com",
                  password,
-                 admin: bool = False,
+                 admin_property: bool = False,
                  blocked: bool = False
                  ):
         self.username = username
         # self.email = email
         self.name = name
         self.password = password
-        self.admin = admin
+        self.admin = admin_property
         self.blocked = blocked
 
 
@@ -105,14 +108,15 @@ def update_my_profile():
     if form.validate_on_submit():
         existing_user = User.query.filter_by(username=form.username.data).first()
         if existing_user and existing_user.id != current_user.id:
-            abort(400, description="Ez a felhasználónév már foglalt. Kérjük, válasszon másikat.")
+            return jsonify(result='error', message='Ez a felhasználónév már foglalt. Kérjük, válasszon másikat.')
         else:
-            hashed_password = bcrypt.generate_password_hash(form.password.data)
+            hashed_password = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
             current_user.name = form.name.data
             current_user.username = form.username.data
             current_user.password = hashed_password
             db.session.commit()
-            return redirect(url_for('dashboard'))
+            return jsonify(result='success')  # Return success status as JSON
+
     return render_template('update_my_profile.html', form=form, user=current_user)
 
 
@@ -144,7 +148,7 @@ def new_user():
                 name=(form.name.data or "John/Jane Doe") if form.name.data.strip() != "" else "John/Jane Doe",
                 username=form.username.data,
                 password=hashed_password,
-                admin=form.admin.data,
+                admin_property=form.admin.data,
                 blocked=form.blocked.data)
             print(f"form username: {form.username.data}")
             db.session.add(new_user)

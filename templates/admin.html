@@ -55,13 +55,10 @@
             const blockedCheckbox = document.querySelector(`.blocked-checkbox[data-user-id="${userId}"]`);
             const adminCheckbox = document.querySelector(`.admin-checkbox[data-user-id="${userId}"]`);
 
-
-
             const new_name = nameInput.value;
             const new_username = usernameInput.value;
             const blocked = blockedCheckbox.checked ? 1 : 0;
             const admin = adminCheckbox.checked ? 1 : 0;
-
 
             const response = await fetch('/update_user', {
                 method: 'POST',
@@ -69,7 +66,6 @@
                     user_id: userId,
                     new_name: new_name,
                     new_username: new_username,
-                    {#email: email,#}
                     blocked: blocked,
                     admin: admin
                 }),

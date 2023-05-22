@@ -2,7 +2,6 @@
 
 {% block content %}
 
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -12,18 +11,46 @@
 </head>
 <body>
     <h1>Update My Profile</h1>
+    <div id="alertBox" style="color: red;"></div> <!-- Alert box for error message -->
 
-    <form method="POST" action="">
+    <form id="profileForm" method="POST" action="">
         {{ form.hidden_tag() }}
         {{ form.username.label }} {{ form.username(size=32) }}<br>
         {{ form.name.label }} {{ form.name(size=32) }}<br>
         {{ form.password.label }} {{ form.password(size=32) }}<br>
-        Admin: {{ user.admin }}<br>
-        Blocked: {{ user.blocked }}<br>
+        <div title="Read Only. Use Admin page for changing.">Admin: {{ user.admin }}<br>
+        Blocked: {{ user.blocked }}</div>
+        <br>
         {{ form.submit }}
     </form>
 
+
     <a href="{{ url_for('dashboard') }}">Back to Dashboard</a>
+
+    <script>
+    const form = document.getElementById('profileForm');
+    const alertBox = document.getElementById('alertBox');
+
+    form.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        const response = await fetch('', {
+            method: 'POST',
+            body: new URLSearchParams(new FormData(form)),
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+        });
+
+        const result = await response.json();
+
+        if (result.result === 'success') {
+            alert('Profile successfully updated');
+        } else {
+            alertBox.innerHTML = 'Error updating profile: ' + result.message;
+        }
+    });
+    </script>
+
 </body>
 </html>
 
