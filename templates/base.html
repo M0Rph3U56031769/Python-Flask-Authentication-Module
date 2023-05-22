@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Web App</title>
+    <style>
+        .container {
+            display: flex;
+        }
+        #header {
+            margin-left: auto;
+            text-align: right;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div id="content">
+            {% block content %}
+            {% endblock %}
+        </div>
+        <div id="header">
+            {% if current_user.is_authenticated %}
+                <div>
+                    <a href="{{ url_for('update_my_profile') }}">{{ current_user.name }} / {{ current_user.username }}</a>
+                </div>
+                <div>
+                    <a href="{{ url_for('logout') }}">Logout</a>
+                </div>
+            {% else %}
+                <div>
+                    <a href="{{ url_for('login') }}">Login</a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</body>
+</html>
