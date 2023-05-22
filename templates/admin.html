@@ -9,7 +9,7 @@
 </head>
 
 <body>
-    <h1>Hello {{ user.name }}({{ user.username }})! You are logged in.</h1>
+    <h1>Hello {{ user.name }}(<a href="{{url_for('update_my_profile')}}">{{ user.username }}</a>)! You are logged in.</h1>
     <h2>Users:</h2>
     <p>
         <table>

@@ -12,13 +12,44 @@
     <h1>Add New User</h1>
 
     <form method="POST" action="">
+        <p>
         {{ form.hidden_tag() }}
-        {{ form.username }}
-        {{ form.name }}
-        {{ form.password }}
-        {{ form.admin }} Admin
-        {{ form.blocked }} Blocked
-        {{ form.submit }}
+
+        {{ form.username.label }}<br>
+        {{ form.username(size=32) }}
+        {% for error in form.username.errors %}
+            <span style="color: red;">{{ error }}</span>
+        {% endfor %}
+        <br>
+{#        {% for error in form.username.errors %}#}
+{#            <small class="form-text text-danger">{{ error }}</small>#}
+{#        {% endfor %}<br>#}
+
+        {{ form.name.label }}<br>
+        {{ form.name(size=32) }}<br>
+        {% for error in form.name.errors %}
+            <small class="form-text text-danger">{{ error }}</small>
+        {% endfor %}
+
+        {{ form.password.label }}<br>
+        {{ form.password(size=32) }}<br>
+        {% for error in form.password.errors %}
+            <small class="form-text text-danger">{{ error }}</small>
+        {% endfor %}<br>
+        </p>
+        <p>
+            {{ form.admin }} Admin<br>
+            {% for error in form.admin.errors %}
+                <small class="form-text text-danger">{{ error }}</small>
+            {% endfor %}
+
+            {{ form.blocked }} Blocked<br>
+            {% for error in form.blocked.errors %}
+                <small class="form-text text-danger">{{ error }}</small>
+            {% endfor %}
+        </p>
+        <br>
+        <p>{{ form.submit }}</p>
     </form>
 
     <a href="{{ url_for('admin') }}">Back to Admin Panel</a>

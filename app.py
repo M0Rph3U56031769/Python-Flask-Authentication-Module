@@ -1,13 +1,13 @@
+from functools import wraps
+
 from flask import Flask, render_template, url_for, redirect, request, jsonify
-from flask_sqlalchemy import SQLAlchemy
+from flask import abort
+from flask_bcrypt import Bcrypt
 from flask_login import UserMixin, login_user, LoginManager, login_required, logout_user, current_user
+from flask_sqlalchemy import SQLAlchemy
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, SubmitField, BooleanField
 from wtforms.validators import InputRequired, Length, ValidationError, Optional
-from sqlalchemy.exc import IntegrityError
-from flask_bcrypt import Bcrypt
-from functools import wraps
-from flask import abort
 
 SQLALCHEMY_TRACK_MODIFICATIONS = False
 
@@ -42,9 +42,6 @@ def admin_required(f):
 
 @login_manager.user_loader
 def load_user(user_id):
-    # print(User.query.get(int(user_id)))
-    # print(User.username)
-    # print(User.name)
     return User.query.get(int(user_id))
 
 
@@ -75,7 +72,7 @@ class User(db.Model, UserMixin):
 
 class NewUserForm(FlaskForm):
     name = StringField(validators=[
-        Length(min=3, max=40)], render_kw={"placeholder": "Name"})
+        Length(max=40)], render_kw={"placeholder": "Name"})
 
     username = StringField(validators=[
         InputRequired(), Length(min=4, max=20)], render_kw={"placeholder": "Username"})
@@ -89,36 +86,78 @@ class NewUserForm(FlaskForm):
 
     submit = SubmitField('Add User')
 
+    @staticmethod
+    def validate_username(form, field):
+        if User.query.filter_by(username=field.data).first():
+            raise ValidationError('Ez a felhasználónév már foglalt. Kérjük, válasszon másikat.')
+
+
+@app.route('/update_my_profile', methods=['GET', 'POST'])
+@login_required
+def update_my_profile():
+    form = UpdateUserForm()
+
+    # Load current data
+    if request.method == 'GET':
+        form.name.data = current_user.name
+        form.username.data = current_user.username
+
+    if form.validate_on_submit():
+        existing_user = User.query.filter_by(username=form.username.data).first()
+        if existing_user and existing_user.id != current_user.id:
+            abort(400, description="Ez a felhasználónév már foglalt. Kérjük, válasszon másikat.")
+        else:
+            hashed_password = bcrypt.generate_password_hash(form.password.data)
+            current_user.name = form.name.data
+            current_user.username = form.username.data
+            current_user.password = hashed_password
+            db.session.commit()
+            return redirect(url_for('dashboard'))
+    return render_template('update_my_profile.html', form=form, user=current_user)
+
+
+class UpdateUserForm(FlaskForm):
+    name = StringField(validators=[
+        Length(min=3, max=40)], render_kw={"placeholder": "Name"})
+
+    username = StringField(validators=[
+        InputRequired(), Length(min=4, max=20)], render_kw={"placeholder": "Username"})
+
+    password = PasswordField(validators=[
+        InputRequired(), Length(min=8, max=20)], render_kw={"placeholder": "Password"})
+
+    submit = SubmitField('Update User')
+
 
 @app.route('/new_user', methods=['GET', 'POST'])
 @admin_required
 @login_required
 def new_user():
+    print("NEW USER:")
     form = NewUserForm()
+    print(form.validate_on_submit())
     if form.validate_on_submit():
-        hashed_password = bcrypt.generate_password_hash(form.password.data)
-        new_user = User(
-            name=form.name.data,
-            username=form.username.data,
-            password=hashed_password,
-            admin=form.admin.data,
-            blocked=form.blocked.data)
-        db.session.add(new_user)
-        try:
+        existing_user = User.query.filter_by(username=form.username.data).first()
+        if not existing_user:
+            hashed_password = bcrypt.generate_password_hash(form.password.data)
+            new_user = User(
+                name=(form.name.data or "John/Jane Doe") if form.name.data.strip() != "" else "John/Jane Doe",
+                username=form.username.data,
+                password=hashed_password,
+                admin=form.admin.data,
+                blocked=form.blocked.data)
+            print(f"form username: {form.username.data}")
+            db.session.add(new_user)
             db.session.commit()
             return redirect(url_for('admin'))
-        except IntegrityError:
-            db.session.rollback()
-            return "A felhasználónév már foglalt. Kérjük, válasszon másikat.", 400
+    else:
+        print(form.errors)
     return render_template('new_user.html', form=form)
 
 
 class RegisterForm(FlaskForm):
     name = StringField(validators=[
         Length(min=3, max=40)], render_kw={"placeholder": "Name"})
-
-    # email = StringField(validators=[
-    #     Length(min=8)], render_kw={"placeholder": "Email"})
 
     username = StringField(validators=[
         InputRequired(), Length(min=4, max=20)], render_kw={"placeholder": "Username"})
@@ -132,9 +171,6 @@ class RegisterForm(FlaskForm):
     def validate_username(username,
                           name
                           ):
-        # print(email.data)
-        # print(f"EXTRA: {username.data.get('username')}")
-        # print(f"EXTRA: {name.data}")
         existing_user_username = User.query.filter_by(
             username=name.data).first()
         if existing_user_username:

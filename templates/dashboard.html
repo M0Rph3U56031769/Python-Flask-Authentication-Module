@@ -9,8 +9,10 @@
 </head>
 
 <body>
-    <h1>Hello {{ user.name }}({{ user.username }})! You are logged in.</h1>
-    <p><a href="{{url_for('admin')}}">admin page</a></p>
+<h1>Hello {{ user.name }}(<a href="{{url_for('update_my_profile')}}">{{ user.username }}</a>)! You are logged in.</h1>
+
+    <p><a href="{{url_for('admin')}}">Admin page</a></p>
+    <p><a href="{{url_for('update_my_profile')}}">Profile page</a></p>
     <p><a href="{{url_for('logout')}}">Press here to logout</a></p>
 </body>
 

@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Update My Profile</title>
+</head>
+<body>
+    <h1>Update My Profile</h1>
+
+    <form method="POST" action="">
+        {{ form.hidden_tag() }}
+        {{ form.username.label }} {{ form.username(size=32) }}<br>
+        {{ form.name.label }} {{ form.name(size=32) }}<br>
+        {{ form.password.label }} {{ form.password(size=32) }}<br>
+        Admin: {{ user.admin }}<br>
+        Blocked: {{ user.blocked }}<br>
+        {{ form.submit }}
+    </form>
+
+    <a href="{{ url_for('dashboard') }}">Back to Dashboard</a>
+</body>
+</html>
