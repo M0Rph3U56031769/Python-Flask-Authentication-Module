@@ -113,13 +113,12 @@ def define_routes(app, bcrypt):
             if existing_user and existing_user.id != current_user.id:
                 return jsonify(result='error', message='This username is already taken. '
                                                        'Please choose another.')
-            else:
-                hashed_password = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
-                current_user.name = form.name.data
-                current_user.username = form.username.data
-                current_user.password = hashed_password
-                db.session.commit()
-                return jsonify(result='success')  # Return success status as JSON
+            hashed_password = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
+            current_user.name = form.name.data
+            current_user.username = form.username.data
+            current_user.password = hashed_password
+            db.session.commit()
+            return jsonify(result='success')  # Return success status as JSON
 
         return render_template('update_my_profile.html', form=form, user=current_user)
 
@@ -183,8 +182,7 @@ def define_routes(app, bcrypt):
             db.session.delete(user)
             db.session.commit()
             return jsonify({"result": "success"})
-        else:
-            return jsonify({"result": "error", "message": "User not found"})
+        return jsonify({"result": "error", "message": "User not found"})
 
     @app.route('/update_user', methods=['POST'])
     @login_required
@@ -208,12 +206,10 @@ def define_routes(app, bcrypt):
             user.name = new_name
             user.username = new_username
             user.blocked = blocked
-            # user.email = email
             user.admin = admin_property
             db.session.commit()
             return jsonify({"result": "success"})
-        else:
-            return jsonify({"result": "error", "message": "User not found"})
+        return jsonify({"result": "error", "message": "User not found"})
 
     @app.route('/admin', methods=['GET', 'POST'])
     @admin_required
