@@ -2,50 +2,38 @@
 
 {% block content %}
 
-<!DOCTYPE html>
-<html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Page</title>
-</head>
-
-<body>
-    <h1>Hello {{ user.name }}(<a href="{{url_for('update_my_profile')}}">{{ user.username }}</a>)! You are logged in.</h1>
-    <h2>Users:</h2>
-    <p>
-        <table>
-            <thead>
+<h1>Hello {{ user.name }}(<a href="{{url_for('update_my_profile')}}">{{ user.username }}</a>)! You are logged in.</h1>
+<h2>Users:</h2>
+<p>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Username</th>
+                <th>Blocked</th>
+                <th>Admin</th>
+                <th>Save</th>
+                <th>Delete</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for user in all_users %}
                 <tr>
-                    <th>ID</th>
-                    <th>Name</th>
-                    <th>Username</th>
-                    <th>Blocked</th>
-{#                    <th>Email</th>#}
-                    <th>Admin</th>
-                    <th>Save</th>
-                    <th>Delete</th>
+                    <td>{{ user.id }}</td>
+                    <td><input type="text" value="{{ user.name }}" class="name-input" data-user-id="{{ user.id }}"></td>
+                    <td><input type="text" value="{{ user.username }}" class="username-input" data-user-id="{{ user.id }}"></td>
+                    <td><input type="checkbox" {% if user.blocked %}checked{% endif %} class="blocked-checkbox" data-user-id="{{ user.id }}"></td>
+                    <td><input type="checkbox" {% if user.admin %}checked{% endif %} class="admin-checkbox" data-user-id="{{ user.id }}"></td>
+                    <td><button class="save-button" data-user-id="{{ user.id }}">Save</button></td>
+                    <td><button class="delete-btn" data-user-id="{{ user.id }}">Delete</button></td>
+
                 </tr>
-            </thead>
-            <tbody>
-                {% for user in all_users %}
-                    <tr>
-                        <td>{{ user.id }}</td>
-                        <td><input type="text" value="{{ user.name }}" class="name-input" data-user-id="{{ user.id }}"></td>
-                        <td><input type="text" value="{{ user.username }}" class="username-input" data-user-id="{{ user.id }}"></td>
-                        <td><input type="checkbox" {% if user.blocked %}checked{% endif %} class="blocked-checkbox" data-user-id="{{ user.id }}"></td>
-                        <td><input type="checkbox" {% if user.admin %}checked{% endif %} class="admin-checkbox" data-user-id="{{ user.id }}"></td>
-                        <td><button class="save-button" data-user-id="{{ user.id }}">Save</button></td>
-                        <td><button class="delete-btn" data-user-id="{{ user.id }}">Delete</button></td>
+            {% endfor %}
+        </tbody>
+    </table>
 
-                    </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-
-    <script>
+<script>
     const saveButtons = document.querySelectorAll('.save-button');
     for (const button of saveButtons) {
         button.addEventListener('click', async () => {
@@ -114,9 +102,6 @@
     <p><a href="{{url_for('new_user')}}">New User</a></p>
     <p><a href="{{url_for('dashboard')}}">Dashboard</a></p>
     <p><a href="{{url_for('logout')}}">Logout</a></p>
-</body>
-
-</html>
 
 {% endblock %}
     
