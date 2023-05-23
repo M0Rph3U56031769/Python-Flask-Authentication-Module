@@ -1,4 +1,22 @@
 # app.py
+"""
+This is the app.py module, responsible for initializing the Flask application.
+
+Major functions include:
+
+Creating a Flask application instance (app)
+Initializing the LoginManager, which handles user sessions
+Setting up CORS in the app, which ensures the app securely handles requests from different origins
+Establishing database connection via SQLAlchemy
+Setting up a secret key for encryption
+Initializing Bcrypt, which handles password hashing
+Connecting the application with models using SQLAlchemy's init_app() function
+Defining routes within the application
+This module is primarily used to run the Flask application.
+
+The command app.run(debug=True) runs the application in a local development environment, with debugging mode turned on.
+"""
+
 from flask import Flask
 from flask_bcrypt import Bcrypt
 from flask_cors import CORS
