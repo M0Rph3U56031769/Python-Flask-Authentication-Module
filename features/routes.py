@@ -30,7 +30,7 @@ def define_routes(app, bcrypt):
         if form.validate_on_submit():
             existing_user = User.query.filter_by(username=form.username.data).first()
             if existing_user and existing_user.id != current_user.id:
-                return jsonify(result='error', message='Ez a felhasználónév már foglalt. Kérjük, válasszon másikat.')
+                return jsonify(result='error', message='This username is already taken. Please choose another.')
             else:
                 hashed_password = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
                 current_user.name = form.name.data
