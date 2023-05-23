@@ -76,6 +76,18 @@ class NewUserForm(FlaskForm):
 
     @staticmethod
     def validate_username(form, field):
+        """
+        This static method validates the username field of the given form.
+
+        Parameters:
+        form (FlaskForm): The form containing the 'username' field.
+        field (Field): The 'username' field to be validated.
+
+        The function checks if a user already exists with the provided username in the database.
+        If a user is found, a ValidationError is raised with a message to choose a different username.
+
+        It's designed to be used as a custom validator in Flask-WTF forms.
+        """
         print(form.username)
         if User.query.filter_by(username=field.data).first():
             raise ValidationError('This username is already taken. Please choose another.')
