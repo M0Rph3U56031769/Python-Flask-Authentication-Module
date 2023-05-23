@@ -39,7 +39,7 @@ class NewUserForm(FlaskForm):
     def validate_username(form, field):
         print(form.username)
         if User.query.filter_by(username=field.data).first():
-            raise ValidationError('Ez a felhasználónév már foglalt. Kérjük, válasszon másikat.')
+            raise ValidationError('This username is already taken. Please choose another.')
 
 
 class UpdateUserForm(FlaskForm):

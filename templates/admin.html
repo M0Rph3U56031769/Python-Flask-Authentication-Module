@@ -75,7 +75,7 @@
 <script>
     document.querySelectorAll('.delete-btn').forEach(function(btn) {
         btn.addEventListener('click', function(e) {
-            var user_id = e.target.getAttribute('data-user-id');
+            const user_id = e.target.getAttribute('data-user-id');
             if (confirm('Are you sure you want to delete this user?')) {
                 fetch('/delete_user', {
                     method: 'POST',
