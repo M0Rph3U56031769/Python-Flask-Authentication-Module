@@ -1,18 +1,6 @@
 {% extends "base.html" %}
 
 {% block content %}
-
-
-<!DOCTYPE html>
-<html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Add New User</title>
-</head>
-
 <body>
     <h1>Add New User</h1>
 
@@ -26,9 +14,6 @@
             <span style="color: red;">{{ error }}</span>
         {% endfor %}
         <br>
-{#        {% for error in form.username.errors %}#}
-{#            <small class="form-text text-danger">{{ error }}</small>#}
-{#        {% endfor %}<br>#}
 
         {{ form.name.label }}<br>
         {{ form.name(size=32) }}<br>
@@ -58,8 +43,5 @@
     </form>
 
     <a href="{{ url_for('admin') }}">Back to Admin Panel</a>
-</body>
-
-</html>
 
 {% endblock %}
