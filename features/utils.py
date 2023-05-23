@@ -26,7 +26,7 @@ from app import login_manager
 from features.models import User
 
 
-def admin_required(f):
+def admin_required(function):
     """
     This function is a decorator that ensures the current user has admin privileges.
 
@@ -45,7 +45,7 @@ def admin_required(f):
     function: The decorated function, which is called if the current user has admin rights.
     """
 
-    @wraps(f)
+    @wraps(function)
     def decorated_function(*args, **kwargs):
         if not current_user.admin:
             abort(403, f"You are not allowed to see this page!\n"
@@ -56,7 +56,7 @@ def admin_required(f):
                        f"======================================\n"
                        f"Case is reported.\n"
                        f"Contact: danielnagy@danielnagy.hu")
-        return f(*args, **kwargs)
+        return function(*args, **kwargs)
 
     return decorated_function
 
