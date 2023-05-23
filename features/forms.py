@@ -84,7 +84,8 @@ class NewUserForm(FlaskForm):
         field (Field): The 'username' field to be validated.
 
         The function checks if a user already exists with the provided username in the database.
-        If a user is found, a ValidationError is raised with a message to choose a different username.
+        If a user is found, a ValidationError is raised with a message to choose a different
+        username.
 
         It's designed to be used as a custom validator in Flask-WTF forms.
         """
