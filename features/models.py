@@ -1,3 +1,23 @@
+"""
+This is the models.py module, responsible for defining the data models in the Flask application
+using SQLAlchemy ORM and Flask-Login.
+
+This module contains the following:
+
+db: This is an instance of SQLAlchemy, which represents the database and provides the entry point
+for any database operations.
+
+User: This class represents the User model. It inherits from db.Model and UserMixin, the latter
+providing default implementations for methods expected by Flask-Login. The User model has
+attributes for 'id', 'name', 'username', 'password', 'admin', and 'blocked' status.
+
+The User model includes a constructor that allows for the creation of new User instances.
+'username', 'name', and 'password' are required parameters, whereas 'admin' and 'blocked' statuses
+are optional and default to False.
+
+The User model is essential for authentication and user management in the application.
+"""
+
 from flask_login import UserMixin
 from flask_sqlalchemy import SQLAlchemy
 

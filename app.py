@@ -14,7 +14,8 @@ Connecting the application with models using SQLAlchemy's init_app() function
 Defining routes within the application
 This module is primarily used to run the Flask application.
 
-The command app.run(debug=True) runs the application in a local development environment, with debugging mode turned on.
+The command app.run(debug=True) runs the application in a local development environment, with
+debugging mode turned on.
 """
 
 from flask import Flask

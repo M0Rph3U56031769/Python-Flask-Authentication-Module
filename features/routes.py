@@ -1,4 +1,38 @@
 # routes.py
+"""
+This is the routes.py module, defining the routes (URLs) for a Flask web application that supports user authentication,
+authorization and user profile management.
+
+This module includes:
+
+load_user: Function that Flask-Login uses to reload the user object from the user ID stored in the session.
+It takes a user ID and returns the corresponding User object.
+
+define_routes: Function that defines the routes for the Flask application. It includes the following routes:
+
+/update_my_profile: Endpoint for authenticated users to update their profiles.
+
+/new_user: Endpoint for administrators to create new users.
+
+/: Home page of the website.
+
+/delete_user: Endpoint for administrators to delete users. Expects a user_id in the POST request body.
+
+/update_user: Endpoint for updating a user's details. Expects a user_id and the new details in the POST request.
+
+/admin: Administrative page showing all users. Accessible only to administrators.
+
+/login: Login page.
+
+/dashboard: Personal dashboard for authenticated users.
+
+/logout: Endpoint to log out the current user.
+
+/register: Registration page for new users.
+
+This module uses Flask's routing mechanism to map URLs to Python function calls, providing the HTTP interface for the application.
+"""
+
 from flask import render_template, url_for, redirect, request, jsonify
 from flask_login import login_required, logout_user, current_user
 from flask_login import login_user
