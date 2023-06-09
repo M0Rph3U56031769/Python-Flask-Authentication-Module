@@ -40,7 +40,7 @@ providing the HTTP interface for the application.
 from flask import render_template, url_for, redirect, request, jsonify
 from flask_login import login_required, logout_user, current_user
 from flask_login import login_user
-from app import login_manager
+from features.login_manager import login_manager
 
 from .forms import NewUserForm, UpdateUserForm, LoginForm, RegisterForm
 from .models import db, User

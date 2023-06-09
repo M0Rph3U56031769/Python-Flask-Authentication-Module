@@ -22,7 +22,7 @@ from functools import wraps
 from flask import abort
 from flask_login import current_user
 
-from app import login_manager
+from features.login_manager import login_manager
 from features.models import User
 
 
