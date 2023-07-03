@@ -73,6 +73,7 @@ class NewUserForm(FlaskForm):
     blocked = BooleanField(validators=[Optional()])
 
     submit = SubmitField('Add User')
+    
 
     @staticmethod
     def validate_username(form, field):
