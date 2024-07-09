@@ -36,6 +36,6 @@ typing_extensions==4.6.0
 urllib3==2.0.7
 Werkzeug==3.0.3
 WTForms==3.0.1
-zipp==3.8.0
+zipp==3.19.1
 zope.event==4.6
 zope.interface==6.0
